@@ -1,28 +1,32 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PestFinder.Models;
-using Microsoft.AspNetCore.Identity;
+using PestFinder.Migrations;
+using PestFinder.Permission;
 
 namespace PestFinder
 {
   public class Startup
   {
-    public Startup(IWebHostEnvironment env)
+    public Startup(IConfiguration configuration)
     {
-      var builder = new ConfigurationBuilder()
-          .SetBasePath(env.ContentRootPath)
-          .AddJsonFile("appsettings.json");
-      Configuration = builder.Build();
+      Configuration = configuration;
     }
 
-    public IConfigurationRoot Configuration { get; set; }
+    public IConfiguration Configuration { get; set; }
 
     public void ConfigureServices(IServiceCollection services)
     {
+      services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+      services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
       services.AddMvc();
 
       services.AddEntityFrameworkMySql()
@@ -30,9 +34,14 @@ namespace PestFinder
         .UseMySql(Configuration["ConnectionStrings:DefaultConnection"], ServerVersion.AutoDetect(Configuration["ConnectionStrings:DefaultConnection"])));
 
       services.AddIdentity<ApplicationUser, IdentityRole>()
-        .AddEntityFrameworkStores<PestFinderContext>()
-        .AddDefaultTokenProviders();  
+        .AddUserStore<PestFinderContext>()
+        .AddDefaultTokenProviders();
         
+      services.AddControllersWithViews();  
+      
+      // services.AddDefaultIdentity<ApplicationUser>()
+      //   .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders().AddDefaultUI(); 
+      
       services.Configure<IdentityOptions>(options => 
       {
         options.Password.RequireDigit = false;
@@ -47,8 +56,10 @@ namespace PestFinder
     public void Configure(IApplicationBuilder app)
     {
       app.UseDeveloperExceptionPage();
-      app.UseAuthentication();
+
       app.UseRouting();
+
+      app.UseAuthentication();
       app.UseAuthorization();
 
       app.UseEndpoints(routes =>

@@ -16,3 +16,9 @@ button {
   right: 0;
   
 }
+
+.container{ 
+  box-sizing: border-box;
+  align-items: flex-end; 
+  position: relative;
+}

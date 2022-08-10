@@ -23,15 +23,23 @@ namespace PestFinder.Controllers
       _db = db;
     }
 
+    // [AllowAnonymous] <- allows anyone to view the corresponding method
+    [AllowAnonymous]
     public async Task<ActionResult> Index()
     {
       ViewBag.Title = "Pests";
       ViewBag.Subtitle = "All Pests";
       var userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-      var currentUser = await _userManager.FindByIdAsync(userId);
-      var userPests = _db.Pests.Where(entry => entry.User.Id == currentUser.Id).ToList();
-      // List<Pest> model = _db.Pests.Include(pest => pest.Location).ToList();
-      return View(userPests);
+      if (userId != null)
+      {
+        var currentUser = await _userManager.FindByIdAsync(userId);
+        var userPests = _db.Pests.Where(entry => entry.User.Id == currentUser.Id).ToList();
+        return View(userPests);
+      }
+      else
+      {
+        return View(_db.Pests.ToList());        
+      }
     }
     
     public ActionResult Create()

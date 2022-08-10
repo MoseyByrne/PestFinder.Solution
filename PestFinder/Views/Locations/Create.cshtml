@@ -9,15 +9,15 @@
   {
     <div class="row align-items-stretch">
     <div class="col-2">
-      @Html.Label("Location Name")
-      @Html.Label("Pest Rating")
-      @Html.Label("Action Plan")
+      <p>@Html.Label("Location Name")</p>
+      <p>@Html.Label("Pest Rating")</p>
+      <p>@Html.Label("Action Plan")</p>
     </div>
 
-    <div class="col-6">
-      @Html.TextBoxFor(model => model.Name)
-      @Html.TextBoxFor(model => model.PestRating)
-      @Html.TextBoxFor(model => model.ActionPlan)
+    <div class="col-3">
+      <p>@Html.TextBoxFor(model => model.Name)</p>
+      <p>@Html.TextBoxFor(model => model.PestRating)</p>
+      <p>@Html.TextBoxFor(model => model.ActionPlan)</p>
     </div>
     </div>
 
